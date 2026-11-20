@@ -4,65 +4,41 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Urban Air Quality Assistant | AI Environmental Advisor</title>
-  <style>
-    :root { --bg: #f1f5f9; --card: #ffffff; --text: #0f172a; --muted: #475569; --primary: #0f4c81; --focus: #2563eb; }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
-    .skip-link { position: absolute; top: -40px; left: 0; background: var(--primary); color: #fff; padding: 8px 14px; z-index: 99; }
-    .skip-link:focus { top: 8px; left: 8px; }
-    header { background: var(--primary); color: #fff; padding: 1.5rem 1rem; }
-    .container { max-width: 960px; margin: 0 auto; padding: 0 1rem; }
-    .header-flex { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
-    .pill { background: rgba(255,255,255,0.18); padding: 0.3rem 0.8rem; border-radius: 999px; font-size: 0.85rem; font-weight: 600; }
-    main { padding: 1.75rem 1rem; }
-    .card { background: var(--card); border: 1px solid #cbd5e1; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
-    .grid-form { display: grid; grid-template-columns: 1.3fr 1.3fr auto; gap: 1rem; align-items: end; margin-top: 1rem; }
-    @media (max-width: 720px) { .grid-form { grid-template-columns: 1fr; } }
-    label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.3rem; }
-    input, select { width: 100%; padding: 0.65rem 0.85rem; border: 1.5px solid #94a3b8; border-radius: 8px; font-size: 1rem; }
-    input:focus, select:focus, button:focus { outline: 3px solid var(--focus); outline-offset: 2px; }
-    .btn { background: var(--primary); color: #fff; border: none; padding: 0.72rem 1.4rem; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; }
-    .btn:disabled { opacity: 0.6; }
-    .chips { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; align-items: center; font-size: 0.88rem; color: var(--muted); }
-    .chip { background: #e2e8f0; border: 1px solid #cbd5e1; padding: 0.25rem 0.75rem; border-radius: 999px; cursor: pointer; font-weight: 500; }
-    .results { display: grid; grid-template-columns: 1fr 1.15fr; gap: 1.5rem; }
-    @media (max-width: 780px) { .results { grid-template-columns: 1fr; } }
-    .aqi-box { display: flex; align-items: center; gap: 1.25rem; background: #f8fafc; padding: 1rem; border-radius: 10px; margin: 1rem 0; }
-    .aqi-num { font-size: 2.8rem; font-weight: 800; color: var(--primary); }
-    .badge { padding: 0.25rem 0.7rem; border-radius: 6px; color: #fff; font-size: 0.8rem; font-weight: 700; background: #a16207; }
-    .badge.GOOD { background: #15803d; }
-    .badge.UNHEALTHY, .badge.HAZARDOUS { background: #b91c1c; }
-    .metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
-    .metric { border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.75rem; }
-    .metric span { display: block; font-size: 0.8rem; color: var(--muted); font-weight: 600; }
-    .adv-item { padding: 0.85rem 0; border-top: 1px solid #e2e8f0; }
-    .adv-item:first-of-type { border-top: none; padding-top: 0; }
-    .adv-item h4 { color: var(--primary); font-size: 0.92rem; margin-bottom: 0.2rem; }
-    .error { background: #fef2f2; border: 1.5px solid #dc2626; color: #991b1b; padding: 0.85rem; border-radius: 8px; margin-bottom: 1rem; font-weight: 600; }
-    .hidden { display: none; }
-    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
-  </style>
+  <link rel="stylesheet" href="/static/styles.css" />
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
-  <header role="banner">
+
+  <header class="site-header" role="banner">
     <div class="container header-flex">
       <div>
         <h1>Urban Air Quality Assistant</h1>
-        <p>Hyperlocal Pollutant Telemetry &amp; Gemini AI Public Health Advisor</p>
+        <p class="subtitle">Hyperlocal Pollutant Telemetry, 12-Hour Forecast &amp; Gemini AI Advisor</p>
       </div>
-      <span class="pill" aria-label="Live System Active">● Live Telemetry</span>
+      <div class="header-actions">
+        <button type="button" id="contrast-toggle" class="contrast-btn" aria-pressed="false">
+          High Contrast
+        </button>
+        <span class="pill" aria-label="Live System Active">● Live Telemetry</span>
+      </div>
     </div>
   </header>
 
   <main id="main-content" class="container" role="main">
     <section class="card" aria-labelledby="search-title">
       <h2 id="search-title">Analyze City Air Quality &amp; AI Recommendations</h2>
-      <form id="aqi-form">
+      <form id="aqi-form" novalidate>
         <div class="grid-form">
           <div>
-            <label for="city">City Name</label>
-            <input id="city" type="text" value="Jaipur" required aria-required="true" placeholder="Enter city (e.g. Delhi, Jaipur)" />
+            <label for="city">City Name <span aria-hidden="true">*</span></label>
+            <input
+              id="city"
+              type="text"
+              value="Jaipur"
+              required
+              aria-required="true"
+              placeholder="Enter city (e.g., Delhi, Jaipur, Mumbai)"
+            />
           </div>
           <div>
             <label for="profile">User Sensitivity / Civic Profile</label>
@@ -76,6 +52,7 @@
           </div>
           <button type="submit" id="submit-btn" class="btn">Analyze Air Quality</button>
         </div>
+
         <div class="chips" role="group" aria-label="Quick city presets">
           <span>Quick Cities:</span>
           <button type="button" class="chip" data-city="Delhi">Delhi</button>
@@ -94,88 +71,60 @@
         <div class="header-flex">
           <div>
             <h3 id="loc-name">City</h3>
-            <p id="prof-label" style="font-size:0.88rem;color:var(--muted)">Profile</p>
+            <p id="prof-label" class="muted-text">Profile</p>
           </div>
           <span id="aqi-badge" class="badge">MODERATE</span>
         </div>
+
         <div class="aqi-box">
-          <div id="aqi-num" class="aqi-num">--</div>
+          <div id="aqi-num" class="aqi-num" aria-label="US AQI Score">--</div>
           <div>
             <strong id="aqi-cat">--</strong>
-            <p id="aqi-risk" style="font-size:0.9rem;color:var(--muted)">Risk: --</p>
+            <p id="aqi-risk" class="muted-text">Risk: --</p>
+            <p id="dominant-pol" class="dominant-tag">Primary Driver: --</p>
           </div>
         </div>
+
         <div class="metrics" role="list" aria-label="Pollutant levels">
           <div class="metric" role="listitem"><span>PM2.5</span><strong id="pm25">--</strong> µg/m³</div>
           <div class="metric" role="listitem"><span>PM10</span><strong id="pm10">--</strong> µg/m³</div>
           <div class="metric" role="listitem"><span>NO₂</span><strong id="no2">--</strong> µg/m³</div>
           <div class="metric" role="listitem"><span>O₃</span><strong id="o3">--</strong> µg/m³</div>
         </div>
+
+        <div class="forecast-section" aria-labelledby="forecast-heading">
+          <h4 id="forecast-heading">Next 12-Hour US AQI Trend</h4>
+          <div id="forecast-bars" class="forecast-bars" role="img" aria-label="12 hour AQI bar chart"></div>
+        </div>
       </article>
 
       <article class="card" aria-labelledby="ai-title">
-        <div class="header-flex" style="margin-bottom:1rem">
+        <div class="header-flex ai-top">
           <h3 id="ai-title">GenAI Actionable Guidance</h3>
-          <span id="ai-src" class="pill" style="background:#e0f2fe;color:#0369a1">Gemini AI</span>
+          <span id="ai-src" class="source-pill">Gemini AI</span>
         </div>
-        <div class="adv-item"><h4>Health &amp; Outdoor Activity</h4><p id="adv-health">--</p></div>
-        <div class="adv-item"><h4>Safe Commute &amp; Ventilation</h4><p id="adv-commute">--</p></div>
-        <div class="adv-item"><h4>Urban &amp; Civic Action</h4><p id="adv-urban">--</p></div>
+        <div class="adv-item">
+          <h4>Health &amp; Outdoor Activity</h4>
+          <p id="adv-health">--</p>
+        </div>
+        <div class="adv-item">
+          <h4>Safe Commute &amp; Ventilation</h4>
+          <p id="adv-commute">--</p>
+        </div>
+        <div class="adv-item">
+          <h4>Urban &amp; Civic Mitigation Action</h4>
+          <p id="adv-urban">--</p>
+        </div>
       </article>
     </section>
   </main>
 
-  <script>
-    const form = document.getElementById("aqi-form");
-    const cityEl = document.getElementById("city");
-    const profEl = document.getElementById("profile");
-    const btn = document.getElementById("submit-btn");
-    const errEl = document.getElementById("error-msg");
-    const resEl = document.getElementById("results");
-    const statusEl = document.getElementById("live-status");
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <p>Urban Air Quality Assistant • Real-Time Open-Meteo Telemetry &amp; Google Gemini AI • WCAG 2.1 AA</p>
+    </div>
+  </footer>
 
-    async function fetchReport(city, profile) {
-      errEl.classList.add("hidden");
-      btn.disabled = true;
-      btn.textContent = "Analyzing...";
-      try {
-        const res = await fetch("/api/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ city, profile })
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || "Failed to fetch AQI.");
-        document.getElementById("loc-name").textContent = `${data.location.name}, ${data.location.country}`;
-        document.getElementById("prof-label").textContent = `Profile: ${data.profile}`;
-        const badge = document.getElementById("aqi-badge");
-        badge.textContent = data.air_quality.badge;
-        badge.className = `badge ${data.air_quality.badge}`;
-        document.getElementById("aqi-num").textContent = data.air_quality.us_aqi;
-        document.getElementById("aqi-cat").textContent = data.air_quality.category;
-        document.getElementById("aqi-risk").textContent = `Exposure Risk: ${data.air_quality.risk_level}`;
-        document.getElementById("pm25").textContent = data.air_quality.pollutants.pm2_5;
-        document.getElementById("pm10").textContent = data.air_quality.pollutants.pm10;
-        document.getElementById("no2").textContent = data.air_quality.pollutants.no2;
-        document.getElementById("o3").textContent = data.air_quality.pollutants.o3;
-        document.getElementById("ai-src").textContent = data.advisory.source;
-        document.getElementById("adv-health").textContent = data.advisory.health;
-        document.getElementById("adv-commute").textContent = data.advisory.commute;
-        document.getElementById("adv-urban").textContent = data.advisory.urban;
-        resEl.classList.remove("hidden");
-        statusEl.textContent = `Updated AQI report for ${data.location.name}`;
-      } catch (e) {
-        errEl.textContent = e.message;
-        errEl.classList.remove("hidden");
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "Analyze Air Quality";
-      }
-    }
-
-    form.addEventListener("submit", (e) => { e.preventDefault(); fetchReport(cityEl.value.trim(), profEl.value); });
-    document.querySelectorAll(".chip").forEach(c => c.addEventListener("click", () => { cityEl.value = c.dataset.city; fetchReport(c.dataset.city, profEl.value); }));
-    window.addEventListener("DOMContentLoaded", () => fetchReport(cityEl.value, profEl.value));
-  </script>
+  <script src="/static/app.js"></script>
 </body>
 </html>
