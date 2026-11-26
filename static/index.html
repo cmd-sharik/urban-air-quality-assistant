@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Urban Air Quality Assistant | AI Environmental Advisor</title>
+  <meta name="description" content="Intelligent Urban Air Quality Assistant: modeled US AQI, personalized winter-smog routines, indoor air hacks, commute CO2e impact, and Gemini guidance." />
+  <meta name="color-scheme" content="light dark" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%2714%27 fill=%27%230f4c81%27/%3E%3C/svg%3E" />
+  <title>Urban Air Quality Assistant | Family &amp; Community Smog Advisor</title>
   <link rel="stylesheet" href="/static/styles.css" />
 </head>
 <body>
@@ -13,21 +16,23 @@
     <div class="container header-flex">
       <div>
         <h1>Urban Air Quality Assistant</h1>
-        <p class="subtitle">Hyperlocal Pollutant Telemetry, 12-Hour Forecast &amp; Gemini AI Advisor</p>
+        <p class="subtitle">Modeled Telemetry, Personalized Daily Routines, Indoor Hacks &amp; Gemini Guidance</p>
       </div>
       <div class="header-actions">
         <button type="button" id="contrast-toggle" class="contrast-btn" aria-pressed="false">
           High Contrast
         </button>
-        <span class="pill" aria-label="Live System Active">● Live Telemetry</span>
+        <span class="pill"><span aria-hidden="true">&#9679;</span> Modeled CAMS Data</span>
       </div>
     </div>
   </header>
 
-  <main id="main-content" class="container" role="main">
+  <noscript><p class="error">JavaScript is required to load live air quality data.</p></noscript>
+
+  <main id="main-content" class="container" role="main" tabindex="-1">
     <section class="card" aria-labelledby="search-title">
-      <h2 id="search-title">Analyze City Air Quality &amp; AI Recommendations</h2>
-      <form id="aqi-form" novalidate>
+      <h2 id="search-title">Analyze City Air Quality &amp; Build Your Action Plan</h2>
+      <form id="aqi-form" novalidate aria-describedby="error-msg">
         <div class="grid-form">
           <div>
             <label for="city">City Name <span aria-hidden="true">*</span></label>
@@ -37,11 +42,13 @@
               value="Jaipur"
               required
               aria-required="true"
+              maxlength="80"
+              autocomplete="address-level2"
               placeholder="Enter city (e.g., Delhi, Jaipur, Mumbai)"
             />
           </div>
           <div>
-            <label for="profile">User Sensitivity / Civic Profile</label>
+            <label for="profile">Primary Sensitivity / Civic Profile</label>
             <select id="profile">
               <option value="General Citizen">General Citizen</option>
               <option value="Asthma / Respiratory Sensitivity">Asthma / Respiratory Sensitivity</option>
@@ -52,6 +59,46 @@
           </div>
           <button type="submit" id="submit-btn" class="btn">Analyze Air Quality</button>
         </div>
+
+        <details class="context-details">
+          <summary>Tailor Routine, Indoor Hacks &amp; Commute Impact (Optional)</summary>
+          <div class="context-grid">
+            <fieldset class="fieldset-box">
+              <legend>Household Risk Factors</legend>
+              <label class="check-row"><input type="checkbox" id="hh-children" /> Children in household</label>
+              <label class="check-row"><input type="checkbox" id="hh-elderly" /> Older adults (60+)</label>
+              <label class="check-row"><input type="checkbox" id="hh-resp" /> Asthma / respiratory sensitivity</label>
+            </fieldset>
+
+            <fieldset class="fieldset-box">
+              <legend>Daily Commute</legend>
+              <label for="hh-commute">Primary Mode</label>
+              <select id="hh-commute">
+                <option value="Petrol Car">Petrol Car</option>
+                <option value="Two-Wheeler">Two-Wheeler</option>
+                <option value="Bus / Metro">Bus / Metro</option>
+                <option value="Carpool">Carpool</option>
+                <option value="Walk / Cycle">Walk / Cycle</option>
+                <option value="Work From Home">Work From Home</option>
+              </select>
+              <label for="hh-distance" class="mt-sm">One-Way Distance (km)</label>
+              <input id="hh-distance" type="number" min="0.5" max="120" step="0.5" value="10" />
+            </fieldset>
+
+            <fieldset class="fieldset-box">
+              <legend>Indoor Setup &amp; Budget</legend>
+              <label for="hh-budget">Indoor Budget</label>
+              <select id="hh-budget">
+                <option value="Free / Zero-Cost">Free / Zero-Cost</option>
+                <option value="Low-Cost (&lt;1500)" selected>Low-Cost (&lt;&#8377;1,500)</option>
+                <option value="HEPA Purifier Ready">HEPA Purifier Ready</option>
+              </select>
+              <label for="hh-room" class="mt-sm">Primary Room Area (sq ft)</label>
+              <input id="hh-room" type="number" min="40" max="2000" step="10" value="180" />
+              <label class="check-row mt-sm"><input type="checkbox" id="hh-purifier" /> Owns True HEPA purifier</label>
+            </fieldset>
+          </div>
+        </details>
 
         <div class="chips" role="group" aria-label="Quick city presets">
           <span>Quick Cities:</span>
@@ -66,62 +113,106 @@
     <div id="live-status" class="sr-only" role="status" aria-live="polite"></div>
     <div id="error-msg" class="error hidden" role="alert"></div>
 
-    <section id="results" class="results hidden" aria-label="Air Quality Report">
-      <article class="card">
-        <div class="header-flex">
-          <div>
-            <h3 id="loc-name">City</h3>
-            <p id="prof-label" class="muted-text">Profile</p>
+    <div id="results" class="hidden" aria-label="Air Quality Analysis Results">
+      <section class="results" aria-label="Live Telemetry and AI Guidance">
+        <article class="card">
+          <div class="header-flex">
+            <div>
+              <h3 id="loc-name">City</h3>
+              <p id="prof-label" class="muted-text">Profile</p>
+            </div>
+            <span id="aqi-badge" class="badge">MODERATE</span>
           </div>
-          <span id="aqi-badge" class="badge">MODERATE</span>
-        </div>
 
-        <div class="aqi-box">
-          <div id="aqi-num" class="aqi-num" aria-label="US AQI Score">--</div>
-          <div>
-            <strong id="aqi-cat">--</strong>
-            <p id="aqi-risk" class="muted-text">Risk: --</p>
-            <p id="dominant-pol" class="dominant-tag">Primary Driver: --</p>
+          <div class="aqi-box">
+            <div id="aqi-num" class="aqi-num" role="img" aria-label="US AQI score">--</div>
+            <div>
+              <strong id="aqi-cat">--</strong>
+              <p id="aqi-risk" class="muted-text">Risk: --</p>
+              <p id="dominant-pol" class="dominant-tag">Primary Driver: --</p>
+            </div>
           </div>
-        </div>
 
-        <div class="metrics" role="list" aria-label="Pollutant levels">
-          <div class="metric" role="listitem"><span>PM2.5</span><strong id="pm25">--</strong> µg/m³</div>
-          <div class="metric" role="listitem"><span>PM10</span><strong id="pm10">--</strong> µg/m³</div>
-          <div class="metric" role="listitem"><span>NO₂</span><strong id="no2">--</strong> µg/m³</div>
-          <div class="metric" role="listitem"><span>O₃</span><strong id="o3">--</strong> µg/m³</div>
-        </div>
+          <p id="provenance-note" class="provenance-note">Source: Open-Meteo CAMS Global Model</p>
 
-        <div class="forecast-section" aria-labelledby="forecast-heading">
-          <h4 id="forecast-heading">Next 12-Hour US AQI Trend</h4>
-          <div id="forecast-bars" class="forecast-bars" role="img" aria-label="12 hour AQI bar chart"></div>
-        </div>
-      </article>
+          <div class="metrics" role="list" aria-label="Pollutant levels">
+            <div class="metric" role="listitem"><span>PM2.5</span><strong id="pm25">--</strong></div>
+            <div class="metric" role="listitem"><span>PM10</span><strong id="pm10">--</strong></div>
+            <div class="metric" role="listitem"><span>NO&#8322;</span><strong id="no2">--</strong></div>
+            <div class="metric" role="listitem"><span>O&#8323;</span><strong id="o3">--</strong></div>
+          </div>
 
-      <article class="card" aria-labelledby="ai-title">
-        <div class="header-flex ai-top">
-          <h3 id="ai-title">GenAI Actionable Guidance</h3>
-          <span id="ai-src" class="source-pill">Gemini AI</span>
-        </div>
-        <div class="adv-item">
-          <h4>Health &amp; Outdoor Activity</h4>
-          <p id="adv-health">--</p>
-        </div>
-        <div class="adv-item">
-          <h4>Safe Commute &amp; Ventilation</h4>
-          <p id="adv-commute">--</p>
-        </div>
-        <div class="adv-item">
-          <h4>Urban &amp; Civic Mitigation Action</h4>
-          <p id="adv-urban">--</p>
-        </div>
-      </article>
-    </section>
+          <div id="window-summary" class="window-box"></div>
+
+          <div class="forecast-section" aria-labelledby="forecast-heading">
+            <h4 id="forecast-heading">Next 12 Hours — Available US AQI Forecast</h4>
+            <div id="forecast-bars" class="forecast-bars" aria-hidden="true"></div>
+            <p id="forecast-summary" class="sr-only"></p>
+            <details class="table-details">
+              <summary>View hourly forecast table</summary>
+              <table class="forecast-table">
+                <caption>Hourly US AQI model forecast (local time)</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Time</th>
+                    <th scope="col">Est. US AQI</th>
+                  </tr>
+                </thead>
+                <tbody id="forecast-table-body"></tbody>
+              </table>
+            </details>
+          </div>
+        </article>
+
+        <article class="card" aria-labelledby="ai-title">
+          <div class="header-flex ai-top">
+            <h3 id="ai-title">Actionable Protection Guidance</h3>
+            <span id="ai-src" class="source-pill">Rules Engine</span>
+          </div>
+          <p id="adv-why" class="why-callout">--</p>
+          <div class="adv-item">
+            <h4>Health &amp; Outdoor Activity</h4>
+            <p id="adv-health">--</p>
+          </div>
+          <div class="adv-item">
+            <h4>Safe Commute &amp; Ventilation</h4>
+            <p id="adv-commute">--</p>
+          </div>
+          <div class="adv-item">
+            <h4>Urban &amp; Civic Mitigation Action</h4>
+            <p id="adv-urban">--</p>
+          </div>
+        </article>
+      </section>
+
+      <section class="results-secondary" aria-label="Personalized Routine, Indoor Air, and Impact">
+        <article class="card" aria-labelledby="routine-title">
+          <h3 id="routine-title">Personalized Daily Routine</h3>
+          <div id="routine-list" class="stack-list"></div>
+        </article>
+
+        <article class="card" aria-labelledby="indoor-title">
+          <h3 id="indoor-title">Indoor Air Hacks &amp; Room Sizing</h3>
+          <div id="indoor-list" class="stack-list"></div>
+          <div id="cadr-box" class="callout-box"></div>
+        </article>
+
+        <article class="card" aria-labelledby="impact-title">
+          <h3 id="impact-title">Sustainable Commute Impact</h3>
+          <div id="impact-box" class="callout-box"></div>
+          <div class="share-box">
+            <h4>Family &amp; Community Alert (Privacy-Safe)</h4>
+            <p id="share-text" class="muted-text">--</p>
+            <button type="button" id="copy-share-btn" class="chip mt-sm">Copy Community Update</button>
+          </div>
+        </article>
+      </section>
+    </div>
   </main>
 
   <footer class="site-footer" role="contentinfo">
     <div class="container">
-      <p>Urban Air Quality Assistant • Real-Time Open-Meteo Telemetry &amp; Google Gemini AI • WCAG 2.1 AA</p>
+      <p>Urban Air Quality Assistant &#8226; Open-Meteo CAMS Model Telemetry &amp; Google Gemini &#8226; Informational guidance only, not medical advice</p>
     </div>
   </footer>
 
