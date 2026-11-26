@@ -151,7 +151,7 @@ def parse_gemini_advisory(text: str, dominant_pollutant: str, aqi: int = 100) ->
         commute=commute[:320],
         urban=urban[:320],
         why_this_matters=why_text[:320],
-        source="Google Gemini 2.5 Flash",
+        source="Google Gemini",
     )
 
 
@@ -254,9 +254,16 @@ async def generate_genai_advisory(
                     "commute": parsed.commute,
                     "urban": parsed.urban,
                     "why_this_matters": parsed.why_this_matters or baseline.why_this_matters,
-                    "source": parsed.source,
+                    "source": f"Google Gemini ({settings.gemini_model})",
                 }
             )
+        logger.warning("Gemini response rejected by validation; using deterministic rules engine")
+    except httpx.HTTPStatusError as exc:
+        logger.warning(
+            "Gemini HTTP %d (model=%s); using deterministic rules engine",
+            exc.response.status_code,
+            settings.gemini_model,
+        )
     except (httpx.HTTPError, ValueError, KeyError, IndexError, TypeError) as exc:
         logger.warning(
             "Gemini advisory unavailable (%s); using deterministic rules engine",

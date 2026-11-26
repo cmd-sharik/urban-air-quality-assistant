@@ -25,7 +25,9 @@ class Settings:
     app_title: str = "Urban Air Quality Assistant"
     app_version: str = "3.0.0"
     gemini_api_key: str = os.getenv("GEMINI_API_KEY", "").strip()
-    gemini_model: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip() or "gemini-2.5-flash"
+    gemini_model: str = (
+        os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite").strip() or "gemini-3.5-flash-lite"
+    )
     allowed_origins: tuple[str, ...] = tuple(
         origin.strip()
         for origin in os.getenv("ALLOWED_ORIGINS", "http://localhost:8000").split(",")

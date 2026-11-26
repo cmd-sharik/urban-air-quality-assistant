@@ -120,12 +120,13 @@ async def test_gemini_success_uses_header_and_preserves_deterministic_modules() 
     )
     with patch("app.ai_advisor.settings") as cfg:
         cfg.gemini_api_key = "real-key"
+        cfg.gemini_model = "gemini-3.5-flash-lite"
         cfg.gemini_url = "https://example.com/gemini"
         cfg.gemini_timeout = 10.0
         result = await generate_genai_advisory(
             "Jaipur", "Child / Elderly", make_report(), mock_client
         )
-    assert result.source == "Google Gemini 2.5 Flash"
+    assert result.source == "Google Gemini (gemini-3.5-flash-lite)"
     assert result.health == "Keep kids indoors during rush hour."
     assert len(result.daily_routine) == 4
     assert result.commute_impact is not None
@@ -152,12 +153,13 @@ async def test_gemini_retries_once_on_503_and_falls_back_on_persistent_error() -
     ]
     with patch("app.ai_advisor.settings") as cfg:
         cfg.gemini_api_key = "real-key"
+        cfg.gemini_model = "gemini-3.5-flash-lite"
         cfg.gemini_url = "https://example.com/gemini"
         cfg.gemini_timeout = 10.0
         recovered = await generate_genai_advisory(
             "Jaipur", "General Citizen", make_report(), mock_client
         )
-    assert recovered.source == "Google Gemini 2.5 Flash"
+    assert recovered.source == "Google Gemini (gemini-3.5-flash-lite)"
     assert recovered.health == "Recovered after retry."
     assert mock_client.post.await_count == 2
 
@@ -165,6 +167,7 @@ async def test_gemini_retries_once_on_503_and_falls_back_on_persistent_error() -
     mock_client.post.side_effect = httpx.ConnectError("down")
     with patch("app.ai_advisor.settings") as cfg:
         cfg.gemini_api_key = "real-key"
+        cfg.gemini_model = "gemini-3.5-flash-lite"
         cfg.gemini_url = "https://example.com/gemini"
         cfg.gemini_timeout = 10.0
         fallback = await generate_genai_advisory(
@@ -188,9 +191,32 @@ async def test_gemini_unsafe_response_falls_back() -> None:
     )
     with patch("app.ai_advisor.settings") as cfg:
         cfg.gemini_api_key = "real-key"
+        cfg.gemini_model = "gemini-3.5-flash-lite"
         cfg.gemini_url = "https://example.com/gemini"
         cfg.gemini_timeout = 10.0
         result = await generate_genai_advisory(
             "Jaipur", "General Citizen", make_report(), mock_client
         )
     assert result.source == "Environmental Rules & Decision Engine"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("status", [400, 403, 404, 429, 503])
+async def test_gemini_http_error_logs_status_without_secrets(
+    status: int, caplog: pytest.LogCaptureFixture
+) -> None:
+    mock_client = AsyncMock(spec=httpx.AsyncClient)
+    mock_client.post.return_value = gemini_payload("private-provider-message", status=status)
+    with patch("app.ai_advisor.settings") as cfg:
+        cfg.gemini_api_key = "private-api-key"
+        cfg.gemini_model = "gemini-3.5-flash-lite"
+        cfg.gemini_url = "https://example.com/gemini"
+        cfg.gemini_timeout = 10.0
+        result = await generate_genai_advisory(
+            "Jaipur", "General Citizen", make_report(), mock_client
+        )
+    assert result.source == "Environmental Rules & Decision Engine"
+    assert f"Gemini HTTP {status}" in caplog.text
+    assert "private-api-key" not in caplog.text
+    assert "private-provider-message" not in caplog.text
+    assert mock_client.post.await_count == (2 if status in {429, 503} else 1)

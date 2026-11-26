@@ -31,7 +31,7 @@ Deterministic Decision Engine (app/decision_engine.py)
    ├─ Commute CO2e savings vs. cleaner transit (+/-20% band, India GHG / ICCT / TERI factors)
    └─ Privacy-safe family/community share update (zero personal data)
    ▼
-Gemini 2.5 Flash Structured JSON (app/ai_advisor.py) + Safety Guardrails -> Fallback if unavailable
+Gemini 3.5 Flash-Lite Structured JSON (app/ai_advisor.py) + Safety Guardrails -> Fallback if unavailable
 ```
 
 ### Key Decision Rules
@@ -96,8 +96,8 @@ python -m pytest
 
 | Variable | Purpose | Default |
 |---|---|---|
-| `GEMINI_API_KEY` | Enables Gemini 2.5 Flash explanations | empty (rules engine active) |
-| `GEMINI_MODEL` | Gemini model identifier | `gemini-2.5-flash` |
+| `GEMINI_API_KEY` | Enables Gemini 3.5 Flash-Lite explanations | empty (rules engine active) |
+| `GEMINI_MODEL` | Gemini model identifier | `gemini-3.5-flash-lite` |
 | `ALLOWED_ORIGINS` | Comma-separated CORS origins | `http://localhost:8000` |
 
 ---
