@@ -5,6 +5,7 @@ from app.models import (
     AIAdvisory,
     AirQualityReport,
     CommuteImpactEstimate,
+    CommuteMode,
     HouseholdContext,
     IndoorHack,
     IndoorSizingEstimate,
@@ -172,6 +173,7 @@ def build_indoor_sizing(hh: HouseholdContext) -> IndoorSizingEstimate:
 def build_commute_impact(report: AirQualityReport, hh: HouseholdContext) -> CommuteImpactEstimate:
     """Estimate tailpipe CO2e savings of shifting to a lower-emission practical alternative."""
     current = hh.commute_mode
+    recommended: CommuteMode
     if current in {"Walk / Cycle", "Work From Home"}:
         recommended = current
     elif current == "Petrol Car":
