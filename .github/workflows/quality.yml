@@ -1,0 +1,33 @@
+name: Quality checks
+on:
+  push:
+  pull_request:
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Check Python syntax
+        run: python -m compileall -q app tests
+      - name: Check Python formatting
+        run: ruff format --check .
+      - name: Check Python lint
+        run: ruff check .
+      - name: Check static types
+        run: mypy --strict app
+      - name: Check JavaScript syntax
+        run: node --check static/app.js
+      - name: Run tests with coverage
+        run: python -m pytest -q
+      - name: Check repository size
+        run: test "$(du -sk --exclude=.git . | cut -f1)" -lt 10240
