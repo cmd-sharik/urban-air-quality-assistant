@@ -47,9 +47,7 @@ def test_sensitive_profiles_receive_conservative_buffer() -> None:
     report = make_report(80)
     assert effective_risk_aqi(report, "General Citizen", HouseholdContext()) == 80
     assert effective_risk_aqi(report, "Child / Elderly", HouseholdContext()) == 115
-    assert (
-        effective_risk_aqi(report, "General Citizen", HouseholdContext(has_children=True)) == 115
-    )
+        assert effective_risk_aqi(report, "General Citizen", HouseholdContext(has_children=True)) == 115
 
 
 @pytest.mark.parametrize(
@@ -118,9 +116,7 @@ def test_indoor_cadr_sizing_and_hepa_tier() -> None:
 
 def test_community_share_text_contains_no_personal_identifiers() -> None:
     rep = make_report(140)
-    sensitive_hh = HouseholdContext(
-        has_children=True, has_elderly=True, has_respiratory_risk=True
-    )
+        sensitive_hh = HouseholdContext(has_children=True, has_elderly=True, has_respiratory_risk=True)
     sensitive_adv = build_deterministic_advisory(
         "Jaipur", "Asthma / Respiratory Sensitivity", rep, sensitive_hh
     )
