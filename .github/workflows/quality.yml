@@ -30,4 +30,15 @@ jobs:
       - name: Run tests with coverage
         run: python -m pytest -q
       - name: Check repository size
-        run: test "$(du -sk --exclude=.git . | cut -f1)" -lt 10240
+        run: |
+          bytes=$(git ls-tree -rl HEAD | awk '$2 == "blob" {total += $4} END {print total+0}')
+          echo "Tracked source size: $bytes bytes (limit: 10000000)"
+          test "$bytes" -lt 10000000
+      - name: Smoke test production startup
+        run: |
+          uvicorn app.main:app --host 127.0.0.1 --port 8000 > /tmp/uaqa-server.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true; cat /tmp/uaqa-server.log' EXIT
+          curl --fail --silent --show-error --retry 10 --retry-connrefused --retry-delay 1 http://127.0.0.1:8000/api/health
+          curl --fail --silent --show-error http://127.0.0.1:8000/ > /tmp/uaqa-home.html
+          curl --fail --silent --show-error http://127.0.0.1:8000/static/app.js > /dev/null
